@@ -1,0 +1,89 @@
+﻿@page "/login"
+@using System.Net.Http
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@inject HttpClient Http
+@inject IJSRuntime Js
+@inject NavigationManager navigationManager
+
+@if (loggedIn == false)
+{
+    <EditForm Model="@login" OnValidSubmit="@PostRequest">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <InputText id="name" @bind-Value="@login.Username" />
+        <InputText id="pass" @bind-Value="@login.Password" />
+
+        <button type="submit">Submit</button>
+    </EditForm>
+}
+@code {
+    bool loggedIn = false;
+
+LoginCredentials login = new LoginCredentials();
+
+    public class LoginCredentials
+    {
+        public string Username { get; set; }
+
+        public string Password { get; set; }
+    }
+    public class TokenViewModel
+    {
+        [JsonPropertyName("token")]
+        public string Token { get; set; }
+    }
+    public class DecodedToken
+    {
+        public string nameid { get; set; }
+
+        public int exp { get; set; }
+
+        public int iat { get; set; }
+
+        public int nbf { get; set; }
+
+        [JsonPropertyName("unique_name")]
+        public string uniquename { get; set; }
+    }
+
+    private async Task PostRequest()
+    {
+        var json = JsonSerializer.Serialize<LoginCredentials>(login);
+        var requestMessage = new HttpRequestMessage()
+        {
+            Method = new HttpMethod("POST"),
+            RequestUri = new Uri("https://localhost:44336/api/auth/login"),
+            Content = new StringContent(json)
+        };
+
+        requestMessage.Content.Headers.ContentType =
+        new System.Net.Http.Headers.MediaTypeHeaderValue(
+        "application/json");
+
+
+        var response = await Http.SendAsync(requestMessage);
+        var responseStatusCode = response.StatusCode;
+        var responseBody = await response.Content.ReadAsStringAsync();
+        if (responseStatusCode == System.Net.HttpStatusCode.OK)
+        {
+            TokenViewModel token = JsonSerializer.Deserialize<TokenViewModel>
+                (responseBody);
+
+            //await localStorage.SetItem("token", token.Token);
+            await Js.InvokeVoidAsync("setTokenToStorage", token.Token);
+            DecodedToken tokenJson = await Js.InvokeAsync<DecodedToken>
+                ("parseJwt", token.Token);
+            await Js.InvokeVoidAsync("setUsernameToStorage", tokenJson.uniquename);
+            navigationManager.NavigateTo("/");
+        }
+        else
+        {
+            Console.WriteLine(responseStatusCode.ToString());
+        }
+
+        //Console.WriteLine(await localStorage.GetItem<string>("token"));
+    }
+}

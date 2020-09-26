@@ -1,0 +1,140 @@
+﻿body, html {
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.maingrid {
+    display: grid;
+    grid-template-columns: 5% 95%;
+    height: 100vh;
+}
+
+.channelgrid {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 90% 10%;
+    height: 100%;
+}
+
+.serverlist {
+    height: 100%;
+    background-color: lightslategrey;
+    padding-top: 10px;
+    border-right: 1px solid black;
+}
+
+    .serverlist a {
+        padding: 8px;
+        text-decoration: none;
+        font-size: 15px;
+        color: black;
+        display: block;
+        transition: 0.3s;
+    }
+
+        .serverlist a:hover {
+            color: #f1f1f1;
+        }
+
+.topservergrid {
+    display: grid;
+    grid-template-rows: 8% 92%;
+    height: 100vh;
+}
+
+.servergrid {
+    display: grid;
+    grid-template-columns: 10% 80% 10%;
+    height: 92vh;
+}
+
+.chatlistbar {
+    height: 100%;
+    background-color: dimgrey;
+    border-bottom: 1px black solid;
+}
+
+.topgrid {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 100%;
+}
+
+.textinput {
+    height: 100%;
+    background-color: lightgrey;
+    border-top: 1px solid darkgrey;
+}
+
+.textarea {
+    padding: 10px;
+    background-color: darkkhaki;
+    overflow: auto;
+    height: 100%;
+}
+
+.textinput p {
+    color: white;
+}
+
+.chatgrid {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 90% 10%;
+    height: 92vh;
+}
+
+.channellist {
+    height: 100%;
+    background-color: dimgrey;
+    padding-top: 10px;
+    border-right: 1px solid black;
+}
+
+    .channellist a {
+        padding: 8px 8px 8px 8px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+    }
+
+        .channellist a:hover {
+            color: #f1f1f1;
+        }
+
+.topbar {
+    height: 100%;
+    background-color: darkslategrey;
+    border-bottom: 1px black solid;
+}
+
+.userbar {
+    height: 100%;
+    background-color: darkslategrey;
+    border-top: 1px black solid;
+}
+.userlist {
+    height: 100% - 50px;
+    background-color: dimgrey;
+    padding-top: 10px;
+    border-left: 1px solid black;
+}
+
+    .userlist a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+    }
+
+        .userlist a:hover {
+            color: #f1f1f1;
+        }

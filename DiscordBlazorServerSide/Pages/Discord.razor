@@ -1,0 +1,509 @@
+﻿@page "/discord"
+@using System.Text.Json
+@using Services
+@using System.Net.Http.Headers
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.Http.Connections
+@using System.IdentityModel.Tokens.Jwt
+@using DiscordBlazorServerSide.Models
+@inject IJSRuntime JSRuntime
+@inject HttpClient Http
+@inject ApiService  apiService
+
+<div class="maingrid">
+    <div class="serverlist">
+        @if (currentServer == null)
+        {
+            <button class="btn btn-success" @onclick="(e => LoadHome())">
+                Home @if (newMessages > 0)
+                {<b>(@newMessages)</b>}
+            </button>
+        }
+        else
+        {
+            <button class="btn btn-warning" @onclick="(e => LoadHome())">
+                Home @if (newMessages > 0)
+                {<b>(@newMessages)</b>}
+            </button>
+        }
+
+        @foreach (ServerList sl in servers)
+        {
+            if ((currentServer != null) && (currentServer.Id == sl.Id))
+            {
+                <button class="btn btn-success" @onclick="(e => LoadServer(sl.Id))">@sl.Name</button>
+            }
+            else
+            {
+                <button class="btn btn-primary" @onclick="(e => LoadServer(sl.Id))">@sl.Name</button>
+            }
+        }
+
+    </div>
+    @if (loading)
+    {
+        <div>LOADING...</div>
+    }
+    else
+    {
+        if (currentServer != null)
+        {
+            <div class="topservergrid">
+                <div class="top">
+                    <div class="topgrid">
+                        <div class="topbar">
+                            @if (currentServer != null)
+                            {
+                                <p>@currentServer.Name</p>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+                <div class="server">
+                    <div class="servergrid">
+                        <div class="channel">
+                            <div class="channelgrid">
+                                <div class="channellist">
+                                    @if (currentServer != null)
+                                    {
+                                        foreach (ChannelVm ch in currentServer.Channels.OrderBy(a => a.Name))
+                                        {
+                                            if (currentChan == ch)
+                                            {
+                                                <button class="btn btn-success" @onclick="(e => LoadChannel(ch.Id))">@ch.Name</button>
+
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-primary" @onclick="(e => LoadChannel(ch.Id))">@ch.Name</button>
+                                            }
+
+                                        }
+                                    }
+                                </div>
+                                <div class="userbar">
+                                    BLABLA
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat">
+                            <div class="chatgrid">
+                                <div class="textarea" id="chatWindow">
+                                    @if (currentChan != null)
+                                    {
+                                        foreach (Message mess in currentChan.Messages)
+                                        {
+                                            <p>@mess.CreatedAt.ToShortTimeString() - <b>@mess.SenderName</b>: @mess.Content</p>
+                                        }
+                                    }
+                                </div>
+                                <div class="textinput">
+                                    <input style="width:100%;" type="text" @bind="@message" @onkeyup="@CheckIfSend" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="userlist">
+                            @if (currentServer != null)
+                            {
+                                foreach (ServerUserList us in currentServer.Users)
+                                {
+                                    <a href="#">@us.Username</a>
+                                }
+                            }
+
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        }
+        else
+        {
+            <div class="topservergrid">
+                <div class="top">
+                    <div class="topgrid">
+                        <div class="topbar">
+                        </div>
+                    </div>
+                </div>
+                <div class="server">
+                    <div class="servergrid">
+                        <div class="channel">
+                            <div class="channelgrid">
+                                <div class="channellist">
+                                    <a href="">Samtaleliste</a>
+                                </div>
+                                <div class="userbar">
+                                    @if (home != null)
+                                    {
+                                        <p>Hello, <b>@home.user.Username</b></p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat">
+                            <div class="chatgrid">
+                                <div class="textarea" id="chatWindow">
+                                    @if (currentCon != null)
+                                    {
+                                        foreach (ConversationMessage mess in currentCon.Conversation.messages.OrderBy(x => x.timeCreated))
+                                        {
+                                            <div>
+                                                @if (mess.timeCreated.ToShortDateString() == DateTime.Today.ToShortDateString())
+                                                {
+                                                    <p>
+                                                        @mess.timeCreated.ToShortTimeString() - <b>@mess.username</b>: @mess.content @if (!mess.Seen)
+                                                        {<b>NEW MESSAGE!</b>}
+                                                    </p>
+                                                }
+                                                else
+                                                {
+                                                    <p>
+                                                        @mess.timeCreated.ToShortDateString() - @mess.timeCreated.ToShortTimeString() - <b>@mess.username</b>: @mess.content @if (!mess.Seen)
+                                                        {<b>NEW MESSAGE!</b>}
+                                                    </p>
+
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <div class="textinput">
+                                    @if (currentCon != null)
+                                    {
+                                        <div class="textinput">
+                                            <input style="width:100%;" type="text" @bind="@message" @onkeyup="@CheckIfSendPrivate" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="userlist">
+                            @if (home != null)
+                            {
+                                foreach (FriendList fr in home.friends)
+                                {
+                                    if (fr.Online)
+                                    {
+                                        <button class="btn btn-success" @onclick="(e => LoadConversation(fr))">@fr.Username</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-danger" @onclick="(e => LoadConversation(fr))">@fr.Username</button>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        }
+    }
+</div>
+
+@code {
+    HubConnection connection;
+    string token;
+    FirstLoad first;
+    Home home;
+    List<ServerList> servers = new List<ServerList>();
+    List<FullServer> fullServers = new List<FullServer>();
+    FullServer loadServer;
+    ChannelVm loadChannel;
+    FullServer currentServer;
+    ChannelVm currentChan;
+    FullUser currentUser;
+    ConversationList currentCon;
+    ConversationList loadCon;
+    bool loading = true;
+    string message;
+    FriendList fr;
+    int newMessages = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            token = await JSRuntime.InvokeAsync<string>("getTokenFromStorage");
+            if (!String.IsNullOrEmpty(token))
+            {
+                await GetCurrentUser(token);
+                first = await apiService.FirstLoad(token, currentUser.Id);
+                home = first.home;
+
+                servers = home.servers.OrderBy(x => x.Name).ToList();
+
+                loading = false;
+                StateHasChanged();
+
+                connection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:44336/discordhub",
+                opt =>
+                {
+                    opt.AccessTokenProvider = () => Task.FromResult(token);
+                    opt.Transports = HttpTransportType.WebSockets;
+                })
+                .Build();
+
+                connection.On<Message>("Message", this.ReceivedMessage);
+                connection.On<NewConversationMessageDTO>("PrivateMessage", this.ReceivedPrivateMessage);
+                await connection.StartAsync();
+            }
+
+        }
+
+    }
+    async Task CheckIfSend(KeyboardEventArgs eventArgs)
+    {
+        if (eventArgs.Key == "Enter")
+        {
+            await SendMessage();
+            message = "";
+            StateHasChanged();
+        }
+    }
+    async Task CheckIfSendPrivate(KeyboardEventArgs eventArgs)
+    {
+        if (eventArgs.Key == "Enter")
+        {
+            await SendMessagePrivate();
+            message = "";
+            StateHasChanged();
+        }
+    }
+    async Task LoadConversation(FriendList friend)
+    {
+        currentCon = null;
+        fr = new FriendList()
+        {
+            Id = friend.Id,
+            Username = friend.Username
+        };
+        if (home.conversations.Count > 0)
+        {
+            loadCon = home.conversations.FirstOrDefault(x => x.Conversation.id.Contains(friend.Id));
+            if (loadCon != null)
+            {
+
+                foreach (ConversationMessage mess in loadCon.Conversation.messages.Where(x => x.Seen == false).ToList())
+                {
+                    if (mess.username == currentUser.Username)
+                    {
+                        mess.Seen = true;
+                    }
+                }
+                loadCon.LastSeen = DateTime.Now;
+                await ConversationSeen(loadCon.Conversation.id);
+                currentCon = loadCon;
+            }
+            else
+            {
+                await GetConversationFromServer(friend.Id);
+            }
+        }
+        else
+        {
+            await GetConversationFromServer(friend.Id);
+
+        }
+        if (home.conversations.FirstOrDefault(x => x.Id == currentCon.Id) != null)
+        {
+            home.conversations.RemoveAll(x => x.Id == currentCon.Id);
+            home.conversations.Add(currentCon);
+        }
+        else
+        {
+            home.conversations.Add(currentCon);
+        }
+        StateHasChanged();
+        await JSRuntime.InvokeVoidAsync("updateScroll");
+
+        //dette må byttes ut med et eller annet!
+        await Task.Delay(3000);
+        foreach (ConversationMessage mess in currentCon.Conversation.messages.Where(x => x.Seen == false).ToList())
+        {
+            mess.Seen = true;
+        }
+        StateHasChanged();
+        await JSRuntime.InvokeVoidAsync("updateScroll");
+    }
+    async Task ConversationSeen(string conversationId)
+    {
+        await connection.InvokeAsync("ConversationSeen", conversationId);
+    }
+    async Task SendMessage()
+    {
+        if (String.IsNullOrEmpty(message))
+            return;
+        Message mess = new Message()
+        {
+            Content = message,
+            BelongsTo = currentChan.Id,
+            Id = "mmbop",
+            SenderName = "",
+            SenderId = "",
+            CreatedAt = DateTime.Now
+        };
+        await connection.InvokeAsync("SendMessage", mess);
+    }
+    async Task SendMessagePrivate()
+    {
+        if (String.IsNullOrEmpty(message))
+            return;
+        NewConversationMessageDTO mess = new NewConversationMessageDTO()
+        {
+            Content = message,
+            ConversationId = currentCon.Conversation.id,
+            Id = "PlaceholderId",
+            SenderName = currentUser.Username,
+            SenderId = currentUser.Id,
+            CreatedAt = DateTime.Now
+        };
+        await connection.InvokeAsync("SendPrivateMessage", mess);
+    }
+    async Task ReceivedMessage(Message message)
+    {
+        ChannelVm toChannel = new ChannelVm();
+        foreach (FullServer srv in fullServers)
+        {
+            foreach (ChannelVm ch in srv.Channels)
+            {
+                if (ch.Id == message.BelongsTo)
+                {
+                    if(ch.Messages.Count != 0)
+                    {
+                        ch.Messages.Add(message);
+                        //if(ch.Id != currentChan.Id)
+                        //{
+                        //    ch.Name = ch.Name + "N";
+                        //}
+                    }
+
+                }
+                //if(currentChan.Id == message.BelongsTo)
+                //{
+                //    currentChan.Messages.Add(message);
+                //}
+            }
+        }
+        StateHasChanged();
+        await JSRuntime.InvokeVoidAsync("updateScroll");
+        //if (toChannel != null)
+        //{
+        //    if (toChannel.Messages.Count > 0)
+        //    {
+        //        toChannel.Messages.Add(message);
+
+        //        StateHasChanged();
+        //    }
+        //}
+    }
+    async Task ReceivedPrivateMessage(NewConversationMessageDTO message)
+    {
+        ConversationMessage mess = new ConversationMessage()
+        {
+            id = message.Id,
+            username = message.SenderName,
+            timeCreated = message.CreatedAt,
+            content = message.Content
+        };
+        ConversationList con = home.conversations.FirstOrDefault(x => x.Conversation.id == message.ConversationId);
+        if (currentCon == con)
+        {
+            mess.Seen = true;
+            currentCon.LastSeen = DateTime.Now;
+            await ConversationSeen(currentCon.Conversation.id);
+        }
+        else
+        {
+            //NOTIFY USER
+            newMessages++;
+            StateHasChanged();
+        }
+        con.Conversation.messages.Add(mess);
+        StateHasChanged();
+        await JSRuntime.InvokeVoidAsync("updateScroll");
+    }
+    async Task LoadChannel(string channelId)
+    {
+        currentCon = null;
+        currentChan = currentServer.Channels.FirstOrDefault(x => x.Id == channelId);
+        if (currentChan.Messages.Count == 0)
+        {
+            token = await JSRuntime.InvokeAsync<string>("getTokenFromStorage");
+            if (!String.IsNullOrEmpty(token))
+            {
+                Http.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+                var response = await Http.GetAsync("https://localhost:44336/api/load/loadchannel/" + channelId);
+                var responseStatusCode = response.StatusCode;
+                var responseBody = await response.Content.ReadAsStringAsync();
+                loadChannel = JsonSerializer.Deserialize<ChannelVm>(responseBody);
+                currentChan.Messages = loadChannel.Messages;
+            }
+        }
+        await JSRuntime.InvokeVoidAsync("updateScroll");
+    }
+    async Task LoadServer(string serverId)
+    {
+        loadServer = fullServers.FirstOrDefault(x => x.Id == serverId);
+        if (loadServer == null)
+        {
+            token = await JSRuntime.InvokeAsync<string>("getTokenFromStorage");
+            if (!String.IsNullOrEmpty(token))
+            {
+                Http.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+                var response = await Http.GetAsync("https://localhost:44336/api/load/loadserver/" + serverId);
+                var responseStatusCode = response.StatusCode;
+                var responseBody = await response.Content.ReadAsStringAsync();
+                loadServer = JsonSerializer.Deserialize<FullServer>(responseBody);
+                fullServers.Add(loadServer);
+            }
+        }
+        currentServer = fullServers.FirstOrDefault(x => x.Id == serverId);
+        currentChan = currentServer.Channels.OrderBy(a => a.Name).FirstOrDefault();
+        await JSRuntime.InvokeVoidAsync("updateScroll");
+    }
+    async Task LoadHome()
+    {
+        newMessages = 0;
+        currentServer = null;
+    }
+    async Task GetCurrentUser(string token)
+    {
+        currentUser = new FullUser();
+        var handler = new JwtSecurityTokenHandler();
+        var tokenS = handler.ReadToken(token) as JwtSecurityToken;
+        currentUser.Id = tokenS.Claims.First(x => x.Type == "nameid").Value;
+        currentUser.Username = tokenS.Claims.First(x => x.Type == "unique_name").Value;
+    }
+    async Task GetConversationFromServer(string friendId)
+    {
+        if (!String.IsNullOrEmpty(token))
+        {
+            currentCon = await apiService.GetConversationFromServer(token);
+            foreach (ConversationMessage mess in currentCon.Conversation.messages)
+            {
+                if (mess.timeCreated < currentCon.LastSeen)
+                {
+                    mess.Seen = true;
+                }
+                else
+                {
+                    mess.Seen = false;
+                }
+                if (mess.username == currentUser.Username)
+                {
+                    mess.Seen = true;
+                }
+            }
+            currentCon.LastSeen = DateTime.Now;
+            await ConversationSeen(currentCon.Conversation.id);
+        }
+    }
+}
