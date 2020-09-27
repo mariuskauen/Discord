@@ -18,5 +18,12 @@ namespace Discord.Core.Models
         public byte[] PasswordSalt { get; set; }
 
         public bool Online { get; set; }
+
+        public List<string> Conversations { get; set; }
+
+        public List<string> Servers { get; set; }
+
+
+
     }
 }

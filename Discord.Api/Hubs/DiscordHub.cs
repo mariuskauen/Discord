@@ -39,52 +39,52 @@ namespace Discord.Hubs
         }
 
 
-        public async Task SendMessage(MessageDTO messageDTO)
-        {
-            userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //public async Task SendMessage(MessageDTO messageDTO)
+        //{
+        //    userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            User user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        //    User user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
-            messageDTO.Id = Guid.NewGuid().ToString();
-            messageDTO.SenderId = userId;
-            messageDTO.SenderName = user.Username;
+        //    messageDTO.Id = Guid.NewGuid().ToString();
+        //    messageDTO.SenderId = userId;
+        //    messageDTO.SenderName = user.Username;
 
-            var chan = await _context.Channels.FirstOrDefaultAsync(x => x.Id == messageDTO.BelongsTo);
+        //    var chan = await _context.Channels.FirstOrDefaultAsync(x => x.Id == messageDTO.BelongsTo);
 
-            if (chan == null)
-                return;
+        //    if (chan == null)
+        //        return;
 
-            messageDTO.ServerId = chan.ServerId;
+        //    messageDTO.ServerId = chan.ServerId;
 
-            var mapper = _mapConfig.MessageDTOToMessage.CreateMapper();
-            Message message = mapper.Map<Message>(messageDTO);
+        //    var mapper = _mapConfig.MessageDTOToMessage.CreateMapper();
+        //    Message message = mapper.Map<Message>(messageDTO);
 
-            MongoClient mClient = new MongoClient();
-            IMongoDatabase db = mClient.GetDatabase("DiscordMessages");
-            var collection = db.GetCollection<MongoMessages>("Messages");
+        //    MongoClient mClient = new MongoClient();
+        //    IMongoDatabase db = mClient.GetDatabase("DiscordMessages");
+        //    var collection = db.GetCollection<MongoMessages>("Messages");
 
-            var filter = Builders<MongoMessages>.Filter.Eq("_id", message.BelongsTo);
+        //    var filter = Builders<MongoMessages>.Filter.Eq("_id", message.BelongsTo);
 
-            var record = await collection.Find(filter).FirstOrDefaultAsync();
-            if (record != null)
-            {
-                var update = Builders<MongoMessages>.Update.Push("Messages", message);
-                await collection.FindOneAndUpdateAsync(filter, update);
-            }
-            else
-            {
-                MongoMessages mMess = new MongoMessages()
-                {
-                    Id = message.BelongsTo
-                };
-                mMess.Messages.Add(message);
+        //    var record = await collection.Find(filter).FirstOrDefaultAsync();
+        //    if (record != null)
+        //    {
+        //        var update = Builders<MongoMessages>.Update.Push("Messages", message);
+        //        await collection.FindOneAndUpdateAsync(filter, update);
+        //    }
+        //    else
+        //    {
+        //        MongoMessages mMess = new MongoMessages()
+        //        {
+        //            Id = message.BelongsTo
+        //        };
+        //        mMess.Messages.Add(message);
 
-                await collection.InsertOneAsync(mMess);
-            }
+        //        await collection.InsertOneAsync(mMess);
+        //    }
 
-            await Clients.Group(messageDTO.ServerId).SendAsync("Message", messageDTO);
+        //    await Clients.Group(messageDTO.ServerId).SendAsync("Message", messageDTO);
 
-        }
+        //}
         //public async Task SendPrivateMessage(NewPrivateMessageDTO message)
         //{
         //    userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;

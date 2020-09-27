@@ -18,18 +18,18 @@ namespace Discord.Api.Data
         }
 
         //public DbSet<User> Users { get; set; }
-        //public DbSet<FriendShip> Friends { get; set; }
+        public DbSet<FriendShip> Friends { get; set; }
 
-        //public DbSet<FriendRequest> Requests { get; set; }
+        public DbSet<FriendRequest> Requests { get; set; }
 
-        //public DbSet<Server> Servers { get; set; }
+        public DbSet<Server> Servers { get; set; }
 
-        //public DbSet<Channel> Channels { get; set; }
+        public DbSet<Channel> Channels { get; set; }
 
-        //public DbSet<Message> Messages { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
-        //public DbSet<ServerUser> ServersUsers { get; set; }
+        public DbSet<ServerUser> ServersUsers { get; set; }
 
-        //public DbSet<Conversation> Conversations { get; set; }
+        public DbSet<Conversation> Conversations { get; set; }
     }
 }

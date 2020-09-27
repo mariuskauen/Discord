@@ -39,21 +39,21 @@ namespace Discord.Api.Services
 
             return "Ok";
         }
-        public async Task<List<ServerListDTO>> GetMyServers(string userId)
-        {
-            if (!await context.Users.AsNoTracking().AnyAsync(x => x.Id == userId))
-                return null;
+        //public async Task<List<ServerListDTO>> GetMyServers(string userId)
+        //{
+        //    if (!await context.Users.AsNoTracking().AnyAsync(x => x.Id == userId))
+        //        return null;
 
-            List<ServerUser> serverUsers = await context.ServersUsers.Where(x => x.Id.Contains(userId)).ToListAsync();
-            List<ServerListDTO> Servers = new List<ServerListDTO>();
-            var mapper = mapConfig.ServerToServerListDTO.CreateMapper();
-            foreach (ServerUser su in serverUsers)
-            {
-                string serverId = su.Id.Split(':')[1];
-                Servers.Add(mapper.Map<ServerListDTO>(await context.Servers.FirstOrDefaultAsync(x => x.Id == serverId)));
-            }
-            return Servers;
-        }
+        //    List<ServerUser> serverUsers = await context.ServersUsers.Where(x => x.Id.Contains(userId)).ToListAsync();
+        //    List<ServerListDTO> Servers = new List<ServerListDTO>();
+        //    var mapper = mapConfig.ServerToServerListDTO.CreateMapper();
+        //    foreach (ServerUser su in serverUsers)
+        //    {
+        //        string serverId = su.Id.Split(':')[1];
+        //        Servers.Add(mapper.Map<ServerListDTO>(await context.Servers.FirstOrDefaultAsync(x => x.Id == serverId)));
+        //    }
+        //    return Servers;
+        //}
 
         public async Task<string> JoinServer(string userId, string serverId)
         {
@@ -70,18 +70,18 @@ namespace Discord.Api.Services
             return "Ok";
         }
 
-        public async Task<List<SmallUserDTO>> GetServerUsers(string serverId)
-        {
-            List<ServerUser> serverUsers = await context.ServersUsers.Where(x => x.Id.Contains(serverId)).ToListAsync();
-            List<SmallUserDTO> users = new List<SmallUserDTO>();
-            var mapper = mapConfig.UserToSmallUserDTO.CreateMapper();
-            foreach (ServerUser su in serverUsers)
-            {
-                string userId = su.Id.Split(':')[0];
-                users.Add(mapper.Map<SmallUserDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == userId)));
-            }
-            return users;
-        }
+        //public async Task<List<SmallUserDTO>> GetServerUsers(string serverId)
+        //{
+        //    List<ServerUser> serverUsers = await context.ServersUsers.Where(x => x.Id.Contains(serverId)).ToListAsync();
+        //    List<SmallUserDTO> users = new List<SmallUserDTO>();
+        //    var mapper = mapConfig.UserToSmallUserDTO.CreateMapper();
+        //    foreach (ServerUser su in serverUsers)
+        //    {
+        //        string userId = su.Id.Split(':')[0];
+        //        users.Add(mapper.Map<SmallUserDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == userId)));
+        //    }
+        //    return users;
+        //}
 
     }
 }

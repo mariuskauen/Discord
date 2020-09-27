@@ -1,6 +1,7 @@
 ﻿using Discord.Api.Data;
 using Discord.Core.Models;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,15 +12,20 @@ namespace Discord.Api.Services
     public class AuthService
     {
         private readonly DataContext _context;
-        public AuthService(DataContext context)
+        private readonly IMongoDatabase database;
+        private readonly IMongoCollection<User> collection;
+        public AuthService(DataContext context, IMongoSettings settings)
         {
             _context = context;
-
+            var client = new MongoClient(settings.ConnectionString);
+            database = client.GetDatabase(settings.DatabaseName);
+            collection = database.GetCollection<User>("Users");
         }
 
         public async Task<User> Login(string username, string password)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            var filter = Builders<User>.Filter.Eq("Username", username);
+            var user = await collection.Find(filter).FirstOrDefaultAsync();
             if (user == null)
                 return null;
             if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
@@ -36,15 +42,15 @@ namespace Discord.Api.Services
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
+            await collection.InsertOneAsync(user);
 
             return user;
         }
 
         public async Task<bool> UserExists(string username)
         {
-            if (await _context.Users.FirstOrDefaultAsync(u => u.Username == username) == null)
+            var filter = Builders<User>.Filter.Eq("username", username);
+            if (await collection.Find(filter).FirstOrDefaultAsync() == null)
                 return false;
             return true;
         }
@@ -74,7 +80,8 @@ namespace Discord.Api.Services
 
         public async Task<bool> IdExists(string Id)
         {
-            if (await _context.Users.FirstOrDefaultAsync(u => u.Id == Id) == null)
+            var filter = Builders<User>.Filter.Eq("_id", Id);
+            if (await collection.Find(filter).FirstOrDefaultAsync() == null)
                 return false;
             return true;
         }

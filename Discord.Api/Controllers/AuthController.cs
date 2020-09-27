@@ -5,12 +5,14 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Discord.Api.Data;
 using Discord.Api.Services;
 using Discord.Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 
 namespace Discord.Api.Controllers
 {
@@ -21,10 +23,12 @@ namespace Discord.Api.Controllers
         private readonly AuthService auth;
         private readonly IConfiguration config;
 
+
         public AuthController(AuthService auth, IConfiguration config)
         {
             this.auth = auth;
             this.config = config;
+
         }
 
         [HttpPost("register")]

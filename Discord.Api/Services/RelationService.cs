@@ -23,23 +23,23 @@ namespace Discord.Api.Services
             return await context.Requests.Where(x => x.Id.Contains(userId) && x.IsActive == true).ToListAsync();
         }
 
-        public async Task<List<FriendListDTO>> GetMyFriends(string userId)
-        {
-            var mapper = mapConfig.FriendListToDto.CreateMapper();
-            List<FriendListDTO> friendsToSend = new List<FriendListDTO>();
-            foreach(FriendShip f in await context.Friends.Where(x => x.Id.Contains(userId) && x.IsActive == true).ToListAsync())
-            {
-                string friendId = "";
-                string[] id = f.Id.Split(':');
-                foreach(string str in id)
-                {
-                    if (str != userId)
-                        friendId = str;
-                }
-                friendsToSend.Add(mapper.Map<FriendListDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == friendId)));
-            }
-            return friendsToSend;
-        }
+        //public async Task<List<FriendListDTO>> GetMyFriends(string userId)
+        //{
+        //    var mapper = mapConfig.FriendListToDto.CreateMapper();
+        //    List<FriendListDTO> friendsToSend = new List<FriendListDTO>();
+        //    foreach(FriendShip f in await context.Friends.Where(x => x.Id.Contains(userId) && x.IsActive == true).ToListAsync())
+        //    {
+        //        string friendId = "";
+        //        string[] id = f.Id.Split(':');
+        //        foreach(string str in id)
+        //        {
+        //            if (str != userId)
+        //                friendId = str;
+        //        }
+        //        friendsToSend.Add(mapper.Map<FriendListDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == friendId)));
+        //    }
+        //    return friendsToSend;
+        //}
 
         public async Task<string> SendRequest(User me, string receiverId)
         {
@@ -97,33 +97,33 @@ namespace Discord.Api.Services
             return "Ok";
         }
 
-        public async Task<string> AcceptRequest(string userId, string requestId)
-        {
-            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == userId);
-            if (user == null)
-                return "Who are you? O_o o_O";
+        //public async Task<string> AcceptRequest(string userId, string requestId)
+        //{
+        //    var user = await context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        //    if (user == null)
+        //        return "Who are you? O_o o_O";
 
-            FriendRequest req = await context.Requests.FirstOrDefaultAsync(x => x.Id == requestId);
-            if (req == null)
-                return "Could not find request";
+        //    FriendRequest req = await context.Requests.FirstOrDefaultAsync(x => x.Id == requestId);
+        //    if (req == null)
+        //        return "Could not find request";
 
-            if (!req.IsActive)
-                return "Can't accept, inactive friend request";
-            if (req.SenderId == userId)
-                return "You can't accept your own request!";
-            if (req.ReceiverId != userId)
-                return "Who's request are you trying to accept here?";
+        //    if (!req.IsActive)
+        //        return "Can't accept, inactive friend request";
+        //    if (req.SenderId == userId)
+        //        return "You can't accept your own request!";
+        //    if (req.ReceiverId != userId)
+        //        return "Who's request are you trying to accept here?";
 
-            FriendShip fs = new FriendShip()
-            {
-                Id = req.Id,
-                IsActive = true
-            };
-            req.IsActive = false;
-            context.Friends.Add(fs);
-            await context.SaveChangesAsync();
+        //    FriendShip fs = new FriendShip()
+        //    {
+        //        Id = req.Id,
+        //        IsActive = true
+        //    };
+        //    req.IsActive = false;
+        //    context.Friends.Add(fs);
+        //    await context.SaveChangesAsync();
 
-            return "Ok";
-        }
+        //    return "Ok";
+        //}
     }
 }

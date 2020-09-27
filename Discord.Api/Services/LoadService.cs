@@ -27,7 +27,7 @@ namespace Discord.Api.Services
 
             //GET USER
             var mapper = mapConfig.UserToUserDTO.CreateMapper();
-            dto.User = mapper.Map<UserDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == userId));
+            //dto.User = mapper.Map<UserDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == userId));
 
             //GET SERVERLIST
             mapper = mapConfig.ServerToServerListDTO.CreateMapper();
@@ -39,38 +39,38 @@ namespace Discord.Api.Services
             }
 
             //GET REQUESTLIST      
-            mapper = mapConfig.UserToSmallUserDTO.CreateMapper();
-            foreach (FriendRequest req in await context.Requests.Where(x => x.Id.Contains(userId) && x.IsActive == true).ToListAsync())
-            {
-                FriendRequestDTO frd = new FriendRequestDTO();
-                if (req.SenderId == userId)
-                {
-                    frd.Id = req.Id;
-                    frd.IsSenderMe = true;
-                    frd.User = mapper.Map<SmallUserDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == req.ReceiverId));
-                }
-                else
-                {
-                    frd.Id = req.Id;
-                    frd.IsSenderMe = false;
-                    frd.User = mapper.Map<SmallUserDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == req.SenderId));
-                }
-                dto.Requests.Add(frd);
-            }
+            //mapper = mapConfig.UserToSmallUserDTO.CreateMapper();
+            //foreach (FriendRequest req in await context.Requests.Where(x => x.Id.Contains(userId) && x.IsActive == true).ToListAsync())
+            //{
+            //    FriendRequestDTO frd = new FriendRequestDTO();
+            //    if (req.SenderId == userId)
+            //    {
+            //        frd.Id = req.Id;
+            //        frd.IsSenderMe = true;
+            //        frd.User = mapper.Map<SmallUserDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == req.ReceiverId));
+            //    }
+            //    else
+            //    {
+            //        frd.Id = req.Id;
+            //        frd.IsSenderMe = false;
+            //        frd.User = mapper.Map<SmallUserDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == req.SenderId));
+            //    }
+            //    dto.Requests.Add(frd);
+            //}
 
             //GET FRIENDLIST
-            mapper = mapConfig.FriendListToDto.CreateMapper();
-            foreach (FriendShip f in await context.Friends.Where(x => x.Id.Contains(userId) && x.IsActive == true).ToListAsync())
-            {
-                string friendId = "";
-                string[] id = f.Id.Split(':');
-                foreach (string str in id)
-                {
-                    if (str != userId)
-                        friendId = str;
-                }
-                dto.Friends.Add(mapper.Map<FriendListDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == friendId)));
-            }
+            //mapper = mapConfig.FriendListToDto.CreateMapper();
+            //foreach (FriendShip f in await context.Friends.Where(x => x.Id.Contains(userId) && x.IsActive == true).ToListAsync())
+            //{
+            //    string friendId = "";
+            //    string[] id = f.Id.Split(':');
+            //    foreach (string str in id)
+            //    {
+            //        if (str != userId)
+            //            friendId = str;
+            //    }
+            //    dto.Friends.Add(mapper.Map<FriendListDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == friendId)));
+            //}
 
             //GET CONVERSATIONLIST
             foreach (Conversation c in await context.Conversations.Where(x => x.Userids.Contains(userId)).ToListAsync())
@@ -129,15 +129,15 @@ namespace Discord.Api.Services
             }
 
             //GET USERS
-            mapper = mapConfig.UserToServerUserListDTO.CreateMapper();
-            foreach (ServerUser su in await context.ServersUsers.Where(x => x.Id.Contains(serverId)).ToListAsync())
-            {
-                string id = su.Id.Split(':')[0];
-                server.Users
-                    .Add(mapper.Map<ServerUserListDTO>(
-                        await context.Users.FirstOrDefaultAsync(x => x.Id == id)
-                        ));
-            }
+            //mapper = mapConfig.UserToServerUserListDTO.CreateMapper();
+            //foreach (ServerUser su in await context.ServersUsers.Where(x => x.Id.Contains(serverId)).ToListAsync())
+            //{
+            //    string id = su.Id.Split(':')[0];
+            //    server.Users
+            //        .Add(mapper.Map<ServerUserListDTO>(
+            //            await context.Users.FirstOrDefaultAsync(x => x.Id == id)
+            //            ));
+            //}
 
             return server;
         }

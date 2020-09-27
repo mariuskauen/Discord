@@ -27,27 +27,27 @@ namespace Discord.Api.Controllers
             this.context = context;
         }
 
-        [HttpPost("sendrequest/{receiverId}")]
-        public async Task<IActionResult> SendFriendRequest(string receiverId)
-        {
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == userId);
-            if (user == null)
-                return BadRequest("Who are you? O_o o_O");
+        //[HttpPost("sendrequest/{receiverId}")]
+        //public async Task<IActionResult> SendFriendRequest(string receiverId)
+        //{
+        //    var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //    var user = await context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        //    if (user == null)
+        //        return BadRequest("Who are you? O_o o_O");
 
-            if (!await context.Users.AsNoTracking().AnyAsync(x => x.Id == receiverId))
-                return BadRequest("No such user, dude!");
+        //    if (!await context.Users.AsNoTracking().AnyAsync(x => x.Id == receiverId))
+        //        return BadRequest("No such user, dude!");
 
-            string status = await relation.SendRequest(user, receiverId);
-            if(status == "Ok")
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest(status);
-            }
-        }
+        //    string status = await relation.SendRequest(user, receiverId);
+        //    if(status == "Ok")
+        //    {
+        //        return Ok();
+        //    }
+        //    else
+        //    {
+        //        return BadRequest(status);
+        //    }
+        //}
 
         [HttpGet("getrequests")]
         public async Task<ActionResult<List<FriendRequest>>> GetRequests()
@@ -56,27 +56,27 @@ namespace Discord.Api.Controllers
             return await relation.GetFriendRequests(userId);
         }
 
-        [HttpGet("getmyfriends")]
-        public async Task<ActionResult<List<FriendListDTO>>> GetMyFriends()
-        {
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            return await relation.GetMyFriends(userId);
-        }
+        //[HttpGet("getmyfriends")]
+        //public async Task<ActionResult<List<FriendListDTO>>> GetMyFriends()
+        //{
+        //    var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //    return await relation.GetMyFriends(userId);
+        //}
 
-        [HttpPost("acceptrequest/{requestId}")]
-        public async Task<ActionResult> AcceptRequest(string requestId)
-        {
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //[HttpPost("acceptrequest/{requestId}")]
+        //public async Task<ActionResult> AcceptRequest(string requestId)
+        //{
+        //    var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            string status = await relation.AcceptRequest(userId, requestId);
-            if (status == "Ok")
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest(status);
-            }
-        }
+        //    string status = await relation.AcceptRequest(userId, requestId);
+        //    if (status == "Ok")
+        //    {
+        //        return Ok();
+        //    }
+        //    else
+        //    {
+        //        return BadRequest(status);
+        //    }
+        //}
     }
 }

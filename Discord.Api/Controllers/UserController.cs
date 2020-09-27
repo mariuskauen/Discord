@@ -19,21 +19,21 @@ namespace Discord.Api.Controllers
         private readonly MapConfig mapConfig;
         private readonly DataContext context;
 
-        public UserController(DataContext context, MapConfig mapConfig)
-        {
-            this.context = context;
-            this.mapConfig = mapConfig;
-        }
-        [HttpGet("getuser")]
-        public async Task<ActionResult<UserDTO>> GetUser()
-        {
-            UserDTO user = new UserDTO();
-            string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var mapper = mapConfig.UserToUserDTO.CreateMapper();
-            user = mapper.Map<UserDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == userId));
+        //public UserController(DataContext context, MapConfig mapConfig)
+        //{
+        //    this.context = context;
+        //    this.mapConfig = mapConfig;
+        //}
+        //[HttpGet("getuser")]
+        //public async Task<ActionResult<UserDTO>> GetUser()
+        //{
+        //    UserDTO user = new UserDTO();
+        //    string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //    var mapper = mapConfig.UserToUserDTO.CreateMapper();
+        //    user = mapper.Map<UserDTO>(await context.Users.FirstOrDefaultAsync(x => x.Id == userId));
 
-            return user;
-        }
+        //    return user;
+        //}
 
     }
 }

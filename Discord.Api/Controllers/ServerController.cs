@@ -31,19 +31,19 @@ namespace Discord.Api.Controllers
             return BadRequest(status);
         }
 
-        [HttpGet("getmyservers")]
-        public async Task<List<ServerListDTO>> GetMyServers()
-        {
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            return await serverService.GetMyServers(userId);
-        }
+        //[HttpGet("getmyservers")]
+        //public async Task<List<ServerListDTO>> GetMyServers()
+        //{
+        //    var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //    return await serverService.GetMyServers(userId);
+        //}
 
-        [HttpGet("getserverusers/{serverId}")]
-        public async Task<List<SmallUserDTO>> GetServerUsers(string serverId)
-        {
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            return await serverService.GetServerUsers(serverId);
-        }
+        //[HttpGet("getserverusers/{serverId}")]
+        //public async Task<List<SmallUserDTO>> GetServerUsers(string serverId)
+        //{
+        //    var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //    return await serverService.GetServerUsers(serverId);
+        //}
 
         [HttpPost("joinserver/{serverId}")]
         public async Task<ActionResult> JoinServer(string serverId)
