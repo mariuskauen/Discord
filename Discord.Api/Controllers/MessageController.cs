@@ -17,12 +17,13 @@ namespace Discord.Api.Controllers
     {
         private readonly IMongoCollection<MongoMessages> _mongoMess;
         private readonly DataContext _context;
+        private readonly IMongoDatabase database;
 
-        public MessageController(DataContext context)
+        public MessageController(DataContext context, IMongoSettings settings)
         {
             _context = context;
-            var client = new MongoClient("mongodb://localhost:27017");
-            var database = client.GetDatabase("discord");
+            var client = new MongoClient(settings.ConnectionString);
+            database = client.GetDatabase(settings.DatabaseName);
 
             _mongoMess = database.GetCollection<MongoMessages>("DiscordMessages");
         }
@@ -30,9 +31,7 @@ namespace Discord.Api.Controllers
         [HttpGet("getmessages/{belongsTo}")]
         public async Task<ActionResult<List<Message>>> GetMessages(string belongsTo)
         {
-            MongoClient mClient = new MongoClient();
-            IMongoDatabase db = mClient.GetDatabase("discord");
-            var collection = db.GetCollection<MongoMessages>("DiscordMessages");
+            var collection = database.GetCollection<MongoMessages>("DiscordMessages");
             List<Message> messages = new List<Message>();
             var filter = Builders<MongoMessages>.Filter.Eq("_id", belongsTo);
             MongoMessages mMessages = await collection.Find(filter).FirstOrDefaultAsync();

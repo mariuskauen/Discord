@@ -142,31 +142,32 @@ namespace Discord.Api.Services
             return server;
         }
 
-        public async Task<ChannelDTO> LoadChannel(string channelId)
-        {
+        //FLYTTET TIL CHANNELSERVICE
+        //public async Task<ChannelDTO> LoadChannel(string channelId)
+        //{
 
-            //GET CHANNEL
-            var mapper = mapConfig.ChannelToChannelDTO.CreateMapper();
-            ChannelDTO chan = mapper.Map<ChannelDTO>(await context.Channels.FirstOrDefaultAsync(x => x.Id == channelId));
+        //    //GET CHANNEL
+        //    var mapper = mapConfig.ChannelToChannelDTO.CreateMapper();
+        //    ChannelDTO chan = mapper.Map<ChannelDTO>(await context.Channels.FirstOrDefaultAsync(x => x.Id == channelId));
 
-            //ADD MESSAGES TO CHANNELDTO
-            MongoClient mClient = new MongoClient();
-            IMongoDatabase db = mClient.GetDatabase("discord");
-            var collection = db.GetCollection<MongoMessages>("DiscordMessages");
-            var filter = Builders<MongoMessages>.Filter.Eq("_id", channelId);
-            MongoMessages mMessages = await collection.Find(filter).FirstOrDefaultAsync();
-            if (mMessages == null)
-                return chan;
-            mapper = mapConfig.MessageToMessageDTO.CreateMapper();
-            if (mMessages.Messages.Count > 0)
-            {
-                foreach (Message mess in mMessages.Messages.OrderBy(x => x.CreatedAt).Take(100).ToList())
-                {
-                    mess.CreatedAt = mess.CreatedAt.AddHours(1);
-                    chan.Messages.Add(mapper.Map<MessageDTO>(mess));
-                }
-            }
-            return chan;
-        }
+        //    //ADD MESSAGES TO CHANNELDTO
+        //    MongoClient mClient = new MongoClient();
+        //    IMongoDatabase db = mClient.GetDatabase("discord");
+        //    var collection = db.GetCollection<MongoMessages>("DiscordMessages");
+        //    var filter = Builders<MongoMessages>.Filter.Eq("_id", channelId);
+        //    MongoMessages mMessages = await collection.Find(filter).FirstOrDefaultAsync();
+        //    if (mMessages == null)
+        //        return chan;
+        //    mapper = mapConfig.MessageToMessageDTO.CreateMapper();
+        //    if (mMessages.Messages.Count > 0)
+        //    {
+        //        foreach (Message mess in mMessages.Messages.OrderBy(x => x.CreatedAt).Take(100).ToList())
+        //        {
+        //            mess.CreatedAt = mess.CreatedAt.AddHours(1);
+        //            chan.Messages.Add(mapper.Map<MessageDTO>(mess));
+        //        }
+        //    }
+        //    return chan;
+        //}
     }
 }

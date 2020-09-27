@@ -36,13 +36,14 @@ namespace Discord.Api.Controllers
             return Ok(await load.LoadServer(serverId));
         }
 
-        [HttpGet("loadchannel/{channelId}")]
-        public async Task<ActionResult<FirstLoadDTO>> LoadChannel(string channelId)
-        {
-            string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //FLYTTET TIL CHANNELCONTROLLER
+        //[HttpGet("loadchannel/{channelId}")]
+        //public async Task<ActionResult<FirstLoadDTO>> LoadChannel(string channelId)
+        //{
+        //    string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            return Ok(await load.LoadChannel(channelId));
-        }
+        //    return Ok(await load.LoadChannel(channelId));
+        //}
 
         //[HttpGet("loadconversation")]
         //public async Task<ActionResult<FirstLoadDTO>> LoadConversation()

@@ -37,6 +37,12 @@ namespace Discord.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<MongoSettings>(
+                Configuration.GetSection(nameof(MongoSettings)));
+
+            services.AddSingleton<IMongoSettings>(sp =>
+                sp.GetRequiredService<IOptions<MongoSettings>>().Value);
+
             services.AddDbContext<DataContext>(x => x.UseSqlServer(Configuration.GetConnectionString("DiscordConnection")));
             services.AddControllers();
             services.AddSignalR();
@@ -47,17 +53,15 @@ namespace Discord.Api
             services.AddScoped<ServerService>();
             services.AddScoped<LoadService>();
             services.AddScoped<MapConfig>();
+            services.AddScoped<ChannelService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.Configure<MongoSettings>(
-                Configuration.GetSection(nameof(MongoSettings)));
 
-            services.AddSingleton<IMongoSettings>(sp =>
-                sp.GetRequiredService<IOptions<MongoSettings>>().Value);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
             });
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,

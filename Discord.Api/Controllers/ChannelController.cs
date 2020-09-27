@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Discord.Api.Data;
 using Discord.Core.Models;
+using System.Security.Claims;
+using Discord.Api.Services;
 
 namespace Discord.Api.Controllers
 {
@@ -15,9 +17,11 @@ namespace Discord.Api.Controllers
     public class ChannelController : ControllerBase
     {
         private readonly DataContext _context;
+        private readonly ChannelService _channel;
 
-        public ChannelController(DataContext context)
+        public ChannelController(DataContext context, ChannelService channel)
         {
+            _channel = channel;
             _context = context;
         }
 
@@ -28,18 +32,12 @@ namespace Discord.Api.Controllers
             return await _context.Channels.ToListAsync();
         }
 
-        // GET: api/Channel/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Channel>> GetChannel(string id)
+        [HttpGet("getchannel/{channelId}")]
+        public async Task<ActionResult<ChannelDTO>> GetChannel(string channelId)
         {
-            var channel = await _context.Channels.FindAsync(id);
+            string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            if (channel == null)
-            {
-                return NotFound();
-            }
-
-            return channel;
+            return Ok(await _channel.GetChannel(channelId));
         }
 
         // PUT: api/Channel/5
