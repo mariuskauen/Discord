@@ -13,17 +13,30 @@ namespace Discord.Core.Models
 
         public string Lastname { get; set; }
 
+        public string ProfilePicture { get; set; }
+
         public byte[] PasswordHash { get; set; }
 
         public byte[] PasswordSalt { get; set; }
 
-        public bool Online { get; set; }
+        public Status Status { get; set; }
+
+        public DateTime LastOnline { get; set; }
+
+        public DateTime DateJoined { get; set; }
+
+        public UserSettings Settings { get; set; }
+
+        public List<string> FriendShips { get; set; }
+
+        public List<string> FriendRequests { get; set; }
 
         public List<string> Conversations { get; set; }
 
         public List<string> Servers { get; set; }
 
-
-
     }
+
+
+
 }

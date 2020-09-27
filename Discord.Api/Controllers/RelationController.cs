@@ -39,7 +39,7 @@ namespace Discord.Api.Controllers
         //        return BadRequest("No such user, dude!");
 
         //    string status = await relation.SendRequest(user, receiverId);
-        //    if(status == "Ok")
+        //    if (status == "Ok")
         //    {
         //        return Ok();
         //    }
