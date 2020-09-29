@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Discord.Api.Data;
 using Discord.Core.Models;
 using MongoDB.Driver;
+using Discord.Core.Data;
 
 namespace Discord.Api.Controllers
 {
@@ -18,14 +19,28 @@ namespace Discord.Api.Controllers
         private readonly IMongoCollection<MongoMessages> _mongoMess;
         private readonly DataContext _context;
         private readonly IMongoDatabase database;
+        private readonly QueryRepository _query;
 
-        public MessageController(DataContext context, IMongoSettings settings)
+        public MessageController(DataContext context, IMongoSettings settings, QueryRepository query)
         {
             _context = context;
+            _query = query;
             var client = new MongoClient(settings.ConnectionString);
             database = client.GetDatabase(settings.DatabaseName);
 
             _mongoMess = database.GetCollection<MongoMessages>("DiscordMessages");
+        }
+
+        [HttpGet("getmessage/{id}")]
+        public async Task<ActionResult<List<Message>>> GetMessage(string id)
+        {
+            string query = "DiscordMessages:" + "_id:" + id;
+
+            
+            MongoMessages mMessages = await _query.GetSingle(new MongoMessages(), new MongoMessages(), query);
+            List<Message> messages = mMessages.Messages.OrderBy(x => x.CreatedAt).Take(20).ToList();
+
+            return messages;
         }
 
         [HttpGet("getmessages/{belongsTo}")]
@@ -40,34 +55,34 @@ namespace Discord.Api.Controllers
             return messages;
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMessage(string id, Message message)
-        {
-            if (id != message.Id)
-            {
-                return BadRequest();
-            }
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutMessage(string id, Message message)
+        //{
+        //    if (id != message.Id)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            _context.Entry(message).State = EntityState.Modified;
+        //    _context.Entry(message).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MessageExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!MessageExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
         [HttpPost]
         public async Task<ActionResult<Message>> PostMessage(Message message)
@@ -95,24 +110,24 @@ namespace Discord.Api.Controllers
             return CreatedAtAction("GetMessage", new { id = message.Id }, message);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Message>> DeleteMessage(string id)
-        {
-            var message = await _context.Messages.FindAsync(id);
-            if (message == null)
-            {
-                return NotFound();
-            }
+        //[HttpDelete("{id}")]
+        //public async Task<ActionResult<Message>> DeleteMessage(string id)
+        //{
+        //    var message = await _context.Messages.FindAsync(id);
+        //    if (message == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            _context.Messages.Remove(message);
-            await _context.SaveChangesAsync();
+        //    _context.Messages.Remove(message);
+        //    await _context.SaveChangesAsync();
 
-            return message;
-        }
+        //    return message;
+        //}
 
-        private bool MessageExists(string id)
-        {
-            return _context.Messages.Any(e => e.Id == id);
-        }
+        //private bool MessageExists(string id)
+        //{
+        //    return _context.Messages.Any(e => e.Id == id);
+        //}
     }
 }

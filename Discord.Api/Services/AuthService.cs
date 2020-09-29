@@ -11,10 +11,11 @@ namespace Discord.Api.Services
     public class AuthService
     {
         private readonly DataContext _context;
-        public AuthService(DataContext context)
+        private readonly UserService _user;
+        public AuthService(DataContext context, UserService user)
         {
             _context = context;
-
+            _user = user;
         }
 
         public async Task<User> Login(string username, string password)
@@ -35,6 +36,8 @@ namespace Discord.Api.Services
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
+
+            await _user.InitializeUser(user);
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();

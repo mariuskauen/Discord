@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace Discord.Api.Data
+namespace Discord.Core.Data
 {
-
     public class MongoSettings : IMongoSettings
     {
         public string ConnectionString { get; set; }

@@ -26,9 +26,12 @@ namespace Discord.Core.Helpers
         public MapperConfiguration ChannelToChannelListDTO = new MapperConfiguration(cfg => cfg.CreateMap<Channel, ChannelListDTO>());
         public MapperConfiguration ChannelToChannelDTO = new MapperConfiguration(cfg => cfg.CreateMap<Channel, ChannelDTO>());
 
+        public MapperConfiguration GenericMapping = new MapperConfiguration(cfg => cfg.CreateMap(typeof(Source<>), typeof(Destination<>)));
 
         #endregion
 
+            public class Source<T> { public T Value { get; set; } }
+        public class Destination<T> { public T Value { get; set; } }
 
         #region Resolvers
         //public class MessageResolver : IValueResolver<Channel, ChannelDTO, List<MessageDTO>>

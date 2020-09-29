@@ -17,6 +17,22 @@ namespace Discord.Core.Models
 
         public byte[] PasswordSalt { get; set; }
 
-        public bool Online { get; set; }
+        public Status Status { get; set; }
+
+        public string Conversations { get; set; }
+
+        public string Servers { get; set; }
+
+        public string FriendShips { get; set; }
+
+        public string FriendRequests { get; set; }
+
+        public string Settings { get; set; }
+
+        public string ProfilePicture { get; set; }
+
+        public DateTime DateJoined { get; set; }
+
+        public DateTime LastOnline { get; set; }
     }
 }

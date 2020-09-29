@@ -22,21 +22,21 @@ namespace Discord.Hubs
             _mapConfig = mapConfig;
         }
         string userId;
-        public override async Task OnConnectedAsync()
-        {
-            userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //public override async Task OnConnectedAsync()
+        //{
+        //    userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            foreach (ServerUser serv in await _context.ServersUsers.Where(x => x.Id.Contains(userId)).ToListAsync())
-            {
-                string serverId = serv.Id.Split(':')[1];
-                await Groups.AddToGroupAsync(Context.ConnectionId, serverId);
-            }
-            foreach (Conversation con in await _context.Conversations.Where(x=>x.Userids.Contains(userId)).ToListAsync())
-            {
-                await Groups.AddToGroupAsync(Context.ConnectionId, con.Id);
-            }
-            await Groups.AddToGroupAsync(Context.ConnectionId, userId);
-        }
+        //    foreach (ServerUser serv in await _context.ServersUsers.Where(x => x.Id.Contains(userId)).ToListAsync())
+        //    {
+        //        string serverId = serv.Id.Split(':')[1];
+        //        await Groups.AddToGroupAsync(Context.ConnectionId, serverId);
+        //    }
+        //    foreach (Conversation con in await _context.Conversations.Where(x=>x.Userids.Contains(userId)).ToListAsync())
+        //    {
+        //        await Groups.AddToGroupAsync(Context.ConnectionId, con.Id);
+        //    }
+        //    await Groups.AddToGroupAsync(Context.ConnectionId, userId);
+        //}
 
 
         public async Task SendMessage(MessageDTO messageDTO)

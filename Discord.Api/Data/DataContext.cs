@@ -26,10 +26,7 @@ namespace Discord.Api.Data
 
         public DbSet<Channel> Channels { get; set; }
 
-        public DbSet<Message> Messages { get; set; }
-
         public DbSet<ServerUser> ServersUsers { get; set; }
 
-        public DbSet<Conversation> Conversations { get; set; }
     }
 }

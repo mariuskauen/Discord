@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Http;
 using Discord.Core.Helpers;
 using Discord.Hubs;
 using Microsoft.Extensions.Options;
+using Discord.Core.Data;
 
 namespace Discord.Api
 {
@@ -44,18 +45,19 @@ namespace Discord.Api
                 sp.GetRequiredService<IOptions<MongoSettings>>().Value);
 
             services.AddDbContext<DataContext>(x => x.UseSqlServer(Configuration.GetConnectionString("DiscordConnection")));
-            services.AddControllers();
             services.AddSignalR();
-            services.AddMediatR(typeof(Startup).Assembly);
+            services.AddMediatR(typeof(Startup));
+            services.AddControllers();
             services.AddScoped<AuthService>();
+            services.AddScoped<QueryRepository>();
             services.AddScoped<UserService>();
             services.AddScoped<RelationService>();
             services.AddScoped<ServerService>();
             services.AddScoped<LoadService>();
             services.AddScoped<MapConfig>();
             services.AddScoped<ChannelService>();
+            services.AddScoped<ConversationService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });

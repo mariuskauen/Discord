@@ -7,8 +7,6 @@ namespace Discord.Core.Models
 {
     public class Conversation : Base
     {
-        public string Userlist { get; set; }
-
-        public string Userids { get; set; }
+        public List<string> Conversations { get; set; }
     }
 }

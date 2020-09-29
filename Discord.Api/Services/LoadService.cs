@@ -73,17 +73,17 @@ namespace Discord.Api.Services
             }
 
             //GET CONVERSATIONLIST
-            foreach (Conversation c in await context.Conversations.Where(x => x.Userids.Contains(userId)).ToListAsync())
-            {
-                ConversationListDTO cDto = new ConversationListDTO()
-                {
-                    Id = c.Id,
-                    Userlist = c.Userlist,
-                    Userids = c.Userids
-                };
+            //foreach (Conversation c in await context.Conversations.Where(x => x.Userids.Contains(userId)).ToListAsync())
+            //{
+            //    ConversationListDTO cDto = new ConversationListDTO()
+            //    {
+            //        Id = c.Id,
+            //        Userlist = c.Userlist,
+            //        Userids = c.Userids
+            //    };
 
-                dto.Conversations.Add(cDto);
-            }
+            //    dto.Conversations.Add(cDto);
+            //}
 
             //RETURN FINISHED DTO
             return dto;
