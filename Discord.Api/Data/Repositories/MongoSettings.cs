@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Discord.Core.Data
+namespace Discord.Api.Data.Repositories
 {
     public class MongoSettings : IMongoSettings
     {

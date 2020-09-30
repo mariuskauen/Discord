@@ -8,7 +8,7 @@ using System.Data.Entity;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Discord.Core.Data
+namespace Discord.Api.Data.Repositories
 {
     public class QueryRepository
     {

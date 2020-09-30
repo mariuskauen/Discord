@@ -1,123 +1,123 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Discord.Api.Data;
-using Discord.Core.Models;
-using System.Security.Claims;
-using Discord.Api.Services;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Threading.Tasks;
+//using Microsoft.AspNetCore.Http;
+//using Microsoft.AspNetCore.Mvc;
+//using Microsoft.EntityFrameworkCore;
+//using Discord.Api.Data;
+//using Discord.Core.Models;
+//using System.Security.Claims;
+//using Discord.Api.Services;
 
-namespace Discord.Api.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ChannelController : ControllerBase
-    {
-        private readonly DataContext _context;
-        private readonly ChannelService _channel;
+//namespace Discord.Api.Controllers
+//{
+//    [Route("api/[controller]")]
+//    [ApiController]
+//    public class ChannelController : ControllerBase
+//    {
+//        private readonly DataContext _context;
+//        private readonly ChannelService _channel;
 
-        public ChannelController(DataContext context, ChannelService channel)
-        {
-            _channel = channel;
-            _context = context;
-        }
+//        public ChannelController(DataContext context, ChannelService channel)
+//        {
+//            _channel = channel;
+//            _context = context;
+//        }
 
-        // GET: api/Channel
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Channel>>> GetChannels()
-        {
-            return await _context.Channels.ToListAsync();
-        }
+//        // GET: api/Channel
+//        [HttpGet]
+//        public async Task<ActionResult<IEnumerable<Channel>>> GetChannels()
+//        {
+//            return await _context.Channels.ToListAsync();
+//        }
 
-        [HttpGet("getchannel/{channelId}")]
-        public async Task<ActionResult<ChannelDTO>> GetChannel(string channelId)
-        {
-            string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+//        [HttpGet("getchannel/{channelId}")]
+//        public async Task<ActionResult<ChannelDTO>> GetChannel(string channelId)
+//        {
+//            string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            return Ok(await _channel.GetChannel(channelId));
-        }
+//            return Ok(await _channel.GetChannel(channelId));
+//        }
 
-        // PUT: api/Channel/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutChannel(string id, Channel channel)
-        {
-            if (id != channel.Id)
-            {
-                return BadRequest();
-            }
+//        // PUT: api/Channel/5
+//        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+//        // more details see https://aka.ms/RazorPagesCRUD.
+//        [HttpPut("{id}")]
+//        public async Task<IActionResult> PutChannel(string id, Channel channel)
+//        {
+//            if (id != channel.Id)
+//            {
+//                return BadRequest();
+//            }
 
-            _context.Entry(channel).State = EntityState.Modified;
+//            _context.Entry(channel).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ChannelExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+//            try
+//            {
+//                await _context.SaveChangesAsync();
+//            }
+//            catch (DbUpdateConcurrencyException)
+//            {
+//                if (!ChannelExists(id))
+//                {
+//                    return NotFound();
+//                }
+//                else
+//                {
+//                    throw;
+//                }
+//            }
 
-            return NoContent();
-        }
+//            return NoContent();
+//        }
 
-        // POST: api/Channel
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPost]
-        public async Task<ActionResult<Channel>> PostChannel(Channel channel)
-        {
-            channel.Id = Guid.NewGuid().ToString();
-            _context.Channels.Add(channel);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (ChannelExists(channel.Id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+//        // POST: api/Channel
+//        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+//        // more details see https://aka.ms/RazorPagesCRUD.
+//        [HttpPost]
+//        public async Task<ActionResult<Channel>> PostChannel(Channel channel)
+//        {
+//            channel.Id = Guid.NewGuid().ToString();
+//            _context.Channels.Add(channel);
+//            try
+//            {
+//                await _context.SaveChangesAsync();
+//            }
+//            catch (DbUpdateException)
+//            {
+//                if (ChannelExists(channel.Id))
+//                {
+//                    return Conflict();
+//                }
+//                else
+//                {
+//                    throw;
+//                }
+//            }
 
-            return CreatedAtAction("GetChannel", new { id = channel.Id }, channel);
-        }
+//            return CreatedAtAction("GetChannel", new { id = channel.Id }, channel);
+//        }
 
-        // DELETE: api/Channel/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Channel>> DeleteChannel(string id)
-        {
-            var channel = await _context.Channels.FindAsync(id);
-            if (channel == null)
-            {
-                return NotFound();
-            }
+//        // DELETE: api/Channel/5
+//        [HttpDelete("{id}")]
+//        public async Task<ActionResult<Channel>> DeleteChannel(string id)
+//        {
+//            var channel = await _context.Channels.FindAsync(id);
+//            if (channel == null)
+//            {
+//                return NotFound();
+//            }
 
-            _context.Channels.Remove(channel);
-            await _context.SaveChangesAsync();
+//            _context.Channels.Remove(channel);
+//            await _context.SaveChangesAsync();
 
-            return channel;
-        }
+//            return channel;
+//        }
 
-        private bool ChannelExists(string id)
-        {
-            return _context.Channels.Any(e => e.Id == id);
-        }
-    }
-}
+//        private bool ChannelExists(string id)
+//        {
+//            return _context.Channels.Any(e => e.Id == id);
+//        }
+//    }
+//}

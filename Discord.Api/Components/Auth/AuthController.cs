@@ -1,44 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Discord.Api.Services;
-using Discord.Core.Models;
-using Microsoft.AspNetCore.Http;
+using Discord.Api.Components.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Discord.Api.Controllers
+namespace Discord.Api.Components.Auth
 {
     [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {
         private readonly AuthService auth;
+        private readonly MediatorService mediator;
         private readonly IConfiguration config;
 
-        public AuthController(AuthService auth, IConfiguration config)
+        public AuthController(AuthService auth, IConfiguration config, MediatorService mediator)
         {
             this.auth = auth;
             this.config = config;
+            this.mediator = mediator;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterUserDTO vm)
+        public async Task<IActionResult> Register(Register reg)
         {
-            vm.Username = vm.Username.ToLower();
-            if (await auth.UserExists(vm.Username))
+            reg.Username = reg.Username.ToLower();
+            if (await auth.UserExists(reg.Username))
                 return BadRequest("Username already exists!");
-            var userToCreate = new User
+            var userToCreate = new Auth
             {
                 Id = Guid.NewGuid().ToString(),
-                Username = vm.Username,
-                Firstname = "Marius",
-                Lastname = "Skauen"
+                Username = reg.Username
             };
 
             while (await auth.IdExists(userToCreate.Id))
@@ -46,18 +42,17 @@ namespace Discord.Api.Controllers
                 userToCreate.Id = Guid.NewGuid().ToString();
             }
 
-            var createdUser = await auth.Register(userToCreate, vm.Password);
+            var createdUser = await auth.Register(userToCreate, reg.Password);
+            await mediator.InitializeUser(createdUser.Id, createdUser.Username);
             return StatusCode(201);
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDTO vm)
+        public async Task<IActionResult> Login(Login vm)
         {
-            LoginResponseDTO response = new LoginResponseDTO();
             var userFromRepo = await auth.Login(vm.Username.ToLower(), vm.Password);
             if (userFromRepo == null)
             {
-                response.StatusCode = "Unauthorized";
                 return BadRequest();
             }
             var claims = new[]
@@ -75,8 +70,7 @@ namespace Discord.Api.Controllers
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            response.StatusCode = "Ok";
-            response.Token = tokenHandler.WriteToken(token);
+
             return Ok(new { token = tokenHandler.WriteToken(token) });
         }
     }

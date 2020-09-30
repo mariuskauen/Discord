@@ -1,26 +1,23 @@
-﻿using Discord.Api.Data;
-using Discord.Core.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Discord.Api.Data.Repositories;
 using System.Threading.Tasks;
 
-namespace Discord.Api.Services
+namespace Discord.Api.Components.Auth
 {
     public class AuthService
     {
-        private readonly DataContext _context;
-        private readonly UserService _user;
-        public AuthService(DataContext context, UserService user)
+        private readonly CommandRepository _command;
+        private readonly QueryRepository _query;
+
+        public AuthService(QueryRepository query, CommandRepository command)
         {
-            _context = context;
-            _user = user;
+            _query = query;
+            _command = command;
         }
 
-        public async Task<User> Login(string username, string password)
+        public async Task<Auth> Login(string username, string password)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            string query = "Auth:Username:" + username;
+            var user = await _query.GetSingle(new Auth(), new Auth(), query);
             if (user == null)
                 return null;
             if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
@@ -29,25 +26,24 @@ namespace Discord.Api.Services
             return user;
         }
 
-        public async Task<User> Register(User user, string password)
+        public async Task<Auth> Register(Auth user, string password)
         {
             byte[] passwordHash, passwordSalt;
             CreatePasswordHash(password, out passwordHash, out passwordSalt);
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
+            string query = "Auth";
 
-            await _user.InitializeUser(user);
-
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
+            await _command.Post(user, query);
 
             return user;
         }
 
         public async Task<bool> UserExists(string username)
         {
-            if (await _context.Users.FirstOrDefaultAsync(u => u.Username == username) == null)
+            string query = "Auth:Username:" + username;
+            if (await _query.GetSingle(new Auth(), new Auth(), query) == null)
                 return false;
             return true;
         }
@@ -77,7 +73,8 @@ namespace Discord.Api.Services
 
         public async Task<bool> IdExists(string Id)
         {
-            if (await _context.Users.FirstOrDefaultAsync(u => u.Id == Id) == null)
+            string query = "Auth:_id:" + Id;
+            if (await _query.GetSingle(new Auth(), new Auth(), query) == null)
                 return false;
             return true;
         }

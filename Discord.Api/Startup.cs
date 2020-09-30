@@ -13,16 +13,21 @@ using Microsoft.Extensions.Logging;
 using MediatR;
 using Discord.Api.Data;
 using Microsoft.EntityFrameworkCore;
-using Discord.Api.Services;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Discord.Core.Helpers;
-using Discord.Hubs;
+//using Discord.Hubs;
 using Microsoft.Extensions.Options;
-using Discord.Core.Data;
+using Microsoft.AspNet.OData.Extensions;
+using Microsoft.OData.Edm;
+using Discord.Api.Components;
+using Discord.Api.Data.Repositories;
+using Discord.Api.Components.User;
+using Discord.Api.Components.Auth;
+using Discord.Api.Components.Mediator;
 
 namespace Discord.Api
 {
@@ -44,19 +49,20 @@ namespace Discord.Api
             services.AddSingleton<IMongoSettings>(sp =>
                 sp.GetRequiredService<IOptions<MongoSettings>>().Value);
 
-            services.AddDbContext<DataContext>(x => x.UseSqlServer(Configuration.GetConnectionString("DiscordConnection")));
             services.AddSignalR();
             services.AddMediatR(typeof(Startup));
             services.AddControllers();
             services.AddScoped<AuthService>();
             services.AddScoped<QueryRepository>();
+            services.AddScoped<CommandRepository>();
             services.AddScoped<UserService>();
-            services.AddScoped<RelationService>();
-            services.AddScoped<ServerService>();
-            services.AddScoped<LoadService>();
+            //services.AddScoped<RelationService>();
+            //services.AddScoped<ServerService>();
+            //services.AddScoped<LoadService>();
             services.AddScoped<MapConfig>();
-            services.AddScoped<ChannelService>();
-            services.AddScoped<ConversationService>();
+            //services.AddScoped<ChannelService>();
+            //services.AddScoped<ConversationService>();
+            services.AddScoped<MediatorService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSwaggerGen(c =>
             {
@@ -115,7 +121,7 @@ namespace Discord.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<DiscordHub>("/discordhub");
+                //endpoints.MapHub<DiscordHub>("/discordhub");
             });
         }
     }

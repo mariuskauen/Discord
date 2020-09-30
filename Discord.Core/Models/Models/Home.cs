@@ -13,7 +13,7 @@ namespace Discord.Core.Models
             othersrequests = new List<FriendRequestVm>();
             Conversations = new List<ConversationList>();
         }
-        public FullUser user { get; set; }
+        public FullUserDTO user { get; set; }
 
         public List<FriendList> friends { get; set; }
 
