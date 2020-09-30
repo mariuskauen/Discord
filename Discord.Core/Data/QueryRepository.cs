@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.OData.UriParser;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +24,7 @@ namespace Discord.Core.Data
             string[] queries = query.Split(':');
 
             var collection = database.GetCollection<T>(queries[0]);
+            
             var filter = Builders<T>.Filter.Eq(queries[1], queries[2]);
 
             var ret = new E();
@@ -38,25 +41,25 @@ namespace Discord.Core.Data
             return ret;
         }
 
-        public async Task<List<E>> GetList<T, E>(T first, E second, string query) where T : class, new() where E : class, new()
+        public async Task<List<E>> GetList<T, E>(T source, E destination, string query) where T : class, new() where E : class, new()
         {
             string[] queries = query.Split(':');
 
             var collection = database.GetCollection<T>(queries[0]);
-            var filter = Builders<T>.Filter.Eq(queries[1], queries[2]);
 
-            List<E> ret = new List<E>();
+            FilterDefinition<T> filter;
             var config = new MapperConfiguration(cfg => cfg.CreateMap<T, E>());
             var mapper = new Mapper(config);
-            try
+
+            if(queries.Length > 2)
             {
-                return mapper.Map<List<E>>(await collection.Find(filter).ToListAsync());
+                filter = Builders<T>.Filter.Eq(queries[1], queries[2]);
             }
-            catch (Exception ex)
+            else
             {
-                string buhu = ex.ToString();
+                filter = Builders<T>.Filter.Empty;
             }
-            return ret;
+            return mapper.Map<List<E>>(await collection.Find(filter).ToListAsync());
         }
     }
 }

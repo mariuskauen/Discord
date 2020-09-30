@@ -34,7 +34,9 @@ namespace Discord.Api.Services
         public async Task<UserDTO> GetUser(string query)
         {
             //string query = "Users:" + "_id:" + id;
-            return await _query.GetSingle(new User(), new UserDTO(), query);
+
+            List<UserDTO> users = await _query.GetList(new User(), new UserDTO(), query);
+            return users.FirstOrDefault();
         }
     }
 }

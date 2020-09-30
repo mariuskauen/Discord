@@ -9,6 +9,7 @@ using Discord.Api.Data;
 using Discord.Core.Models;
 using MongoDB.Driver;
 using Discord.Core.Data;
+using System.Security.Claims;
 
 namespace Discord.Api.Controllers
 {
@@ -31,16 +32,28 @@ namespace Discord.Api.Controllers
             _mongoMess = database.GetCollection<MongoMessages>("DiscordMessages");
         }
 
-        [HttpGet("getmessage/{id}")]
-        public async Task<ActionResult<List<Message>>> GetMessage(string id)
+        [HttpGet("getyourmessage/{id}")]
+        public async Task<ActionResult<Message>> GetYourMessage(string id)
         {
-            string query = "DiscordMessages:" + "_id:" + id;
 
-            
-            MongoMessages mMessages = await _query.GetSingle(new MongoMessages(), new MongoMessages(), query);
-            List<Message> messages = mMessages.Messages.OrderBy(x => x.CreatedAt).Take(20).ToList();
+            //string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            string userId = "c9f9e43c-0a02-4909-b2b2-cf68a84dcdc0";
+            string query = "DiscordMessages:" + "_id:" + userId;
+            MongoMessages messages = await _query.GetSingle(new MongoMessages(), new MongoMessages(), query);
+            Message message = messages.Messages.FirstOrDefault(x => x.Id == id);
 
-            return messages;
+            return message;
+        }
+        [HttpGet("getmessage/{id}")]
+        public async Task<ActionResult<Message>> GetMessage(string id)
+        {
+
+            //string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            string query = "DiscordMessages:" + "Messages._id:" + id;
+            MongoMessages messages = await _query.GetSingle(new MongoMessages(), new MongoMessages(), query);
+            Message message = messages.Messages.FirstOrDefault(x => x.Id == id);
+
+            return message;
         }
 
         [HttpGet("getmessages/{belongsTo}")]
